@@ -31,13 +31,13 @@ public:
     };
 private:
     Camera camera;
-    std::vector<Intersectable> geometry;
+    std::vector<Intersectable*> geometry;
     SceneParameters parameters;
     void Render(State& state);
-    std::vector<Intersectable*> Trace(std::vector<Ray> rays);
+    std::vector<Intersectable*> Trace(std::vector<Ray>& rays);
 
 public:
-    Scene(std::vector<Intersectable> geometry, Camera camera, SceneParameters parameters);
+    Scene(std::vector<Intersectable*> geometry, Camera camera, SceneParameters parameters);
     std::tuple<std::vector<uint8_t>, std::chrono::milliseconds> Render();
 };
 

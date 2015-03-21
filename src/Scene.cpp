@@ -3,13 +3,13 @@
 //
 
 #include "Scene.h"
-Scene::Scene(std::vector<Intersectable> geometry, Camera camera, SceneParameters parameters)
+Scene::Scene(std::vector<Intersectable*> geometry, Camera camera, SceneParameters parameters)
         : camera(camera),
           geometry(geometry),
           parameters(parameters){
 }
 
-std::vector<Intersectable*> Scene::Trace(std::vector<Ray> rays){
+std::vector<Intersectable*> Scene::Trace(std::vector<Ray>& rays){
     // Naive ray trace!
     // i.e. compare every ray to every piece of geometry and return the closest intersecting one.
     std::vector<Intersectable*> output(rays.size(), nullptr);
@@ -17,13 +17,15 @@ std::vector<Intersectable*> Scene::Trace(std::vector<Ray> rays){
         // Collide against intersectables ...
         auto best = std::make_tuple<float, Intersectable*>(std::numeric_limits<float>::infinity(), nullptr);
         for(auto g = 0; g < this->geometry.size(); g += 1){
-            auto d = this->geometry[g].Intersect(rays[r]);
+            auto d = this->geometry[g]->Intersect(rays[r]);
             if(d != 0.0f && d < std::get<0>(best)){
                 std::get<0>(best) = d;
-                std::get<1>(best) = &(this->geometry[g]);
+                std::get<1>(best) = this->geometry[g];
             }
         }
+        output[r] = std::get<1>(best);
     }
+    return output;
 }
 
 std::tuple<std::vector<uint8_t>, std::chrono::milliseconds> Scene::Render(){
@@ -32,8 +34,7 @@ std::tuple<std::vector<uint8_t>, std::chrono::milliseconds> Scene::Render(){
     state.Complete = false;
     while(!state.Complete) {
         this->Render(state);
-        auto rays = state.Primary;
-        state.PrimaryIntersections = this->Trace(rays);
+        state.PrimaryIntersections = this->Trace(state.Primary);
     }
     auto finish = std::chrono::high_resolution_clock::now();
     return std::make_tuple(state.Frame, std::chrono::duration_cast<std::chrono::milliseconds>(finish- start));
@@ -47,7 +48,7 @@ void Scene::Render(Scene::State& state){
 
     // Now that you have primary intersections, draw their colours!
     if(state.PrimaryIntersections.size() > 0){
-        state.Frame = std::vector<uint8_t>(state.PrimaryIntersections.size());
+        state.Frame = std::vector<uint8_t>(state.PrimaryIntersections.size()*4, 0);
         for(auto i = 0; i < state.PrimaryIntersections.size(); i += 1){
             if(state.PrimaryIntersections[i] == nullptr) continue;
             auto colour = state.PrimaryIntersections[i]->Colour(state.Primary[i]);

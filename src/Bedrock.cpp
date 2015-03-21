@@ -64,6 +64,6 @@ void Bedrock::RunForever(){
     }
 }
 
-Camera Bedrock::GetCamera(int offset){
-    return Camera(this->width, this->height, this->screenToWorldRatio, offset);
+Camera Bedrock::GetCamera(){
+    return Camera(this->width, this->height, this->screenToWorldRatio, this->offset);
 }

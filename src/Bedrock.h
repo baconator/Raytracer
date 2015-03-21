@@ -31,7 +31,7 @@ private:
 public:
     Bedrock(float width, float height, float screenToWorldRatio, float offset);
     void Draw(std::vector<uint8_t> frame);
-    Camera GetCamera(int offset);
+    Camera GetCamera();
 
     // Runs in a loop until the escape key is pressed.
     void RunForever();

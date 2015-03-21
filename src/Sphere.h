@@ -15,8 +15,8 @@ private:
     float radius;
 public:
     Sphere(Eigen::Vector4f centre, float radius);
-    float Intersect(Ray compare);
-    std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> Colour(Ray compare);
+    float Intersect(Ray& compare);
+    std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> Colour(Ray& compare);
 };
 
 

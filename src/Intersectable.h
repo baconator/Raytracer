@@ -10,8 +10,8 @@
 
 class Intersectable {
 public:
-    virtual float Intersect(Ray compare);
-    virtual std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> Colour(Ray compare);
+    virtual float Intersect(Ray& compare) = 0;
+    virtual std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> Colour(Ray& compare) = 0;
 };
 
 
