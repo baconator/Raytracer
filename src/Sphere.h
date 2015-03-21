@@ -7,9 +7,16 @@
 
 
 #include "Intersectable.h"
+#include "Eigen/Dense"
 
-class Sphere: Intersectable {
-
+class Sphere: public Intersectable {
+private:
+    Eigen::Vector4f centre;
+    float radius;
+public:
+    Sphere(Eigen::Vector4f centre, float radius);
+    float Intersect(Ray compare);
+    std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> Colour(Ray compare);
 };
 
 

@@ -9,12 +9,16 @@
 #include "Ray.h"
 #include <vector>
 
+// A camera that we assume has a center on the origin and its pixels are squares.
+// We only need its width/height in world coordinates and a ratio, ten..
+// ... also the distance to the ray point source.
 class Camera {
 public:
-    int width;
-    int height;
-    int offset;
-    Camera(int width, int height, int offset); // Offset refers to how far away the camera is from a screen centered at the origin.
+    float width;
+    float height;
+    float screenToWorldRatio;
+    float offset;
+    Camera(float width, float height, float ratio, float offset); // Offset refers to how far away the camera is from a screen centered at the origin.
     std::vector<Ray> Cast();
 };
 

@@ -24,10 +24,12 @@ private:
     void InitializeGlfw(int width, int height);
     std::vector<uint8_t> displayed;
     bool dirty;
-    int width;
-    int height;
+    float width;
+    float height;
+    float screenToWorldRatio;
+    float offset;
 public:
-    Bedrock(int width, int height);
+    Bedrock(float width, float height, float screenToWorldRatio, float offset);
     void Draw(std::vector<uint8_t> frame);
     Camera GetCamera(int offset);
 

@@ -30,13 +30,19 @@ void Bedrock::InitializeGlfw(int width, int height){
 }
 
 
-Bedrock::Bedrock(int width, int height):
+Bedrock::Bedrock(float width, float height, float screenToWorldRatio, float offset):
         dirty(false),
         width(width),
         height(height),
+        screenToWorldRatio(screenToWorldRatio),
+        offset(offset),
         displayed(std::vector<uint8_t>{}){
     this->InitializeGlfw(width, height);
     // GLFW is all set up, now.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    // And now we have transparency!
 }
 
 void Bedrock::Draw(std::vector<uint8_t> frame){
@@ -48,7 +54,8 @@ void Bedrock::Draw(std::vector<uint8_t> frame){
 void Bedrock::RunForever(){
     while(!glfwWindowShouldClose(this->window)){
         if(dirty) {
-            glDrawPixels(this->width, this->height, GL_RGB, GL_UNSIGNED_BYTE, &(this->displayed[0]));
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glDrawPixels(this->width, this->height, GL_RGBA, GL_UNSIGNED_BYTE, &(this->displayed[0]));
             glfwSwapBuffers(this->window);
             this->dirty = false;
         }
@@ -58,5 +65,5 @@ void Bedrock::RunForever(){
 }
 
 Camera Bedrock::GetCamera(int offset){
-    return Camera(this->width, this->height, offset);
+    return Camera(this->width, this->height, this->screenToWorldRatio, offset);
 }

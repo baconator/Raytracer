@@ -17,8 +17,10 @@
 class Scene {
 public:
     struct State{
+        bool Complete;
         std::vector<uint8_t> Frame;
         std::vector<Ray> Primary; // If there aren't any primary rays, generate them.
+        std::vector<Intersectable*> PrimaryIntersections;
 
         std::vector<std::array<Ray, DIFFUSE_REFLECTION_RAYS>> Reflected;
         int ReflectedDepth; // Reflected rays are iterated upon as long as ReflectedDepth is valid.
@@ -32,6 +34,7 @@ private:
     std::vector<Intersectable> geometry;
     SceneParameters parameters;
     void Render(State& state);
+    std::vector<Intersectable*> Trace(std::vector<Ray> rays);
 
 public:
     Scene(std::vector<Intersectable> geometry, Camera camera, SceneParameters parameters);
