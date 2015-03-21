@@ -12,6 +12,7 @@ public:
     Eigen::Vector4f start;
     Eigen::Vector4f through;
     Ray(Eigen::Vector4f start, Eigen::Vector4f through);
+    Eigen::Vector4f Point(float d);
 };
 
 

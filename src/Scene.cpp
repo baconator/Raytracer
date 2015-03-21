@@ -3,9 +3,10 @@
 //
 
 #include "Scene.h"
-Scene::Scene(std::vector<Intersectable*> geometry, Camera camera, SceneParameters parameters)
+Scene::Scene(std::vector<Intersectable*> geometry, std::vector<Light> lights, Camera camera, SceneParameters parameters)
         : camera(camera),
           geometry(geometry),
+          lights(lights),
           parameters(parameters){
 }
 
@@ -48,14 +49,28 @@ void Scene::Render(Scene::State& state){
 
     // Now that you have primary intersections, draw their colours!
     if(state.PrimaryIntersections.size() > 0){
-        state.Frame = std::vector<uint8_t>(state.PrimaryIntersections.size()*4, 0);
+        // Normalize out colour values.
+        std::tuple<float, float, float, float> maxes(0, 0, 0, 0); // Yes, it normalizes transparency too.
+        std::vector<Eigen::Vector4f> colours;
         for(auto i = 0; i < state.PrimaryIntersections.size(); i += 1){
+            auto colour = (state.PrimaryIntersections[i] == nullptr)
+                    ? Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f)
+                    : state.PrimaryIntersections[i]->Colour(state.Primary[i], this->lights);
+            colours.push_back(colour);
+            std::get<0>(maxes) = fmax(colour[0], std::get<0>(maxes));
+            std::get<1>(maxes) = fmax(colour[1], std::get<1>(maxes));
+            std::get<2>(maxes) = fmax(colour[2], std::get<2>(maxes));
+            std::get<3>(maxes) = fmax(colour[3], std::get<3>(maxes));
+        }
+
+        state.Frame = std::vector<uint8_t>(state.PrimaryIntersections.size()*4, 0);
+        for(auto i = 0; i < colours.size(); i += 1){
             if(state.PrimaryIntersections[i] == nullptr) continue;
-            auto colour = state.PrimaryIntersections[i]->Colour(state.Primary[i]);
-            state.Frame[4*i] = std::get<0>(colour);
-            state.Frame[4*i+1] = std::get<1>(colour);
-            state.Frame[4*i+2] = std::get<2>(colour);
-            state.Frame[4*i+3] = std::get<3>(colour);
+            auto colour = colours[i];
+            state.Frame[4*i] = static_cast<uint8_t>(round(colour[0]/std::get<0>(maxes)));
+            state.Frame[4*i+1] = static_cast<uint8_t>(round(colour[1]/std::get<1>(maxes)));
+            state.Frame[4*i+2] = static_cast<uint8_t>(round(colour[2]/std::get<2>(maxes)));
+            state.Frame[4*i+3] = static_cast<uint8_t>(round(colour[3]/std::get<3>(maxes)));
         }
         state.Complete = true;
     }

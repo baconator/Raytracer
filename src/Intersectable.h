@@ -7,11 +7,14 @@
 
 
 #include "Ray.h"
+#include "Light.h"
+#include "Eigen/Dense"
+#include <vector>
 
 class Intersectable {
 public:
     virtual float Intersect(Ray& compare) = 0;
-    virtual std::tuple<uint8_t, uint8_t, uint8_t, uint8_t> Colour(Ray& compare) = 0;
+    virtual Eigen::Vector4f Colour(Ray& compare, std::vector<Light>& lights) = 0;
 };
 
 
