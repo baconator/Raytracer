@@ -50,8 +50,13 @@ void Bedrock::RunForever(){
         if(dirty) {
             glDrawPixels(this->width, this->height, GL_RGB, GL_UNSIGNED_BYTE, &(this->displayed[0]));
             glfwSwapBuffers(this->window);
+            this->dirty = false;
         }
         glfwPollEvents();
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
+}
+
+Camera Bedrock::GetCamera(int offset){
+    return Camera(this->width, this->height, offset);
 }

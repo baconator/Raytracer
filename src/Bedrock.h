@@ -12,6 +12,7 @@
 
 // You need GLFW, of course.
 #include <GLFW/glfw3.h>
+#include "Camera.h"
 
 #ifndef _ASSIGNMENT3_BEDROCK_H_
 #define _ASSIGNMENT3_BEDROCK_H_
@@ -28,6 +29,7 @@ private:
 public:
     Bedrock(int width, int height);
     void Draw(std::vector<uint8_t> frame);
+    Camera GetCamera(int offset);
 
     // Runs in a loop until the escape key is pressed.
     void RunForever();
