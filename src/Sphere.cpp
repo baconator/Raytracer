@@ -25,5 +25,16 @@ float Sphere::Intersect(Ray& compare) {
 }
 
 Eigen::Vector4f Sphere::Colour(Ray& compare, std::vector<Light>& lights){
+    // https://en.wikipedia.org/wiki/Phong_reflection_model
+    auto V = (compare.through-compare.start).normalized();
+    auto d = this->Intersect(compare);
+    auto x = compare.Point(d);
+    auto N = (this->centre-x).normalized();
+    for(auto& light : lights){
+        auto L = (light.position-x).normalized();
+        // http://en.wikipedia.org/wiki/Specular_reflection#Direction_of_reflection
+        auto R = 2*(N.dot(L))*N-L;
+        
+    }
     return Eigen::Vector4f(128, 0, 128, 255);
 }
