@@ -33,6 +33,7 @@ Eigen::Vector4f Sphere::Colour(Ray& compare, std::vector<Light>& lights, const E
 
     auto ambientProduct = this->material.ambientReflectance.cwiseProduct(ambient);
     Eigen::Vector4f I = ambientProduct;
+    #pragma clang loop vectorize(enable)
     for(auto& light : lights){
         auto L = (light.position-x).normalized();
         // http://en.wikipedia.org/wiki/Specular_reflection#Direction_of_reflection
