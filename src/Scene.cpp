@@ -51,6 +51,7 @@ void Scene::Render(Scene::State& state){
     if(state.PrimaryIntersections.size() > 0){
         // Normalize out colour values.
         std::tuple<float, float, float, float> maxes(0, 0, 0, 0); // Yes, it normalizes transparency too.
+        // TODO: do dynamic compression.
         std::vector<Eigen::Vector4f> colours;
         for(auto i = 0; i < state.PrimaryIntersections.size(); i += 1){
             auto colour = (state.PrimaryIntersections[i] == nullptr)
@@ -62,15 +63,16 @@ void Scene::Render(Scene::State& state){
             std::get<2>(maxes) = fmax(colour[2], std::get<2>(maxes));
             std::get<3>(maxes) = fmax(colour[3], std::get<3>(maxes));
         }
+        auto upper = fmax(std::get<0>(maxes), fmax(std::get<1>(maxes), fmax(std::get<2>(maxes), std::get<3>(maxes))));
 
         state.Frame = std::vector<uint8_t>(state.PrimaryIntersections.size()*4, 0);
         for(auto i = 0; i < colours.size(); i += 1){
             if(state.PrimaryIntersections[i] == nullptr) continue;
             auto colour = colours[i];
-            state.Frame[4*i] = static_cast<uint8_t>(round(colour[0]/std::get<0>(maxes)*255.0f));
-            state.Frame[4*i+1] = static_cast<uint8_t>(round(colour[1]/std::get<1>(maxes)*255.0f));
-            state.Frame[4*i+2] = static_cast<uint8_t>(round(colour[2]/std::get<2>(maxes)*255.0f));
-            state.Frame[4*i+3] = static_cast<uint8_t>(round(colour[3]/std::get<3>(maxes)*255.0f));
+            state.Frame[4*i] = static_cast<uint8_t>(round(colour[0]/ upper *255.0f));
+            state.Frame[4*i+1] = static_cast<uint8_t>(round(colour[1]/ upper *255.0f));
+            state.Frame[4*i+2] = static_cast<uint8_t>(round(colour[2]/ upper *255.0f));
+            state.Frame[4*i+3] = static_cast<uint8_t>(round(colour[3]/ upper *255.0f));
         }
         state.Complete = true;
     }
