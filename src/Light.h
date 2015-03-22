@@ -11,8 +11,7 @@ class Light {
 public:
     Eigen::Vector4f position;
     Eigen::Vector4f colour;
-    uint8_t intensity;
-    Light(Eigen::Vector4f position, Eigen::Vector4f colour, uint8_t intensity);
+    Light(Eigen::Vector4f position, Eigen::Vector4f colour);
 };
 
 

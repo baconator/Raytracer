@@ -3,8 +3,7 @@
 //
 
 #include "Light.h"
-Light::Light(Eigen::Vector4f position, Eigen::Vector4f colour, uint8_t intensity)
+Light::Light(Eigen::Vector4f position, Eigen::Vector4f colour)
         : position(position),
-          colour(colour),
-          intensity(intensity){
+          colour(colour){
 }

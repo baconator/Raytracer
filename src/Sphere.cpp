@@ -31,13 +31,15 @@ Eigen::Vector4f Sphere::Colour(Ray& compare, std::vector<Light>& lights, const E
     auto x = compare.Point(d);
     auto N = (this->centre-x).normalized();
 
-    Eigen::Vector4f I = this->material.ambientReflectance.cwiseProduct(ambient);
+    auto ambientProduct = this->material.ambientReflectance.cwiseProduct(ambient);
+    Eigen::Vector4f I = ambientProduct;
     for(auto& light : lights){
         auto L = (light.position-x).normalized();
         // http://en.wikipedia.org/wiki/Specular_reflection#Direction_of_reflection
         auto R = 2*(N.dot(L))*N-L;
-        //I = static_cast<Eigen::Vector4f>(I + (this->material.diffuseReflectance*(L.dot(N))*light.colour + this->material.specularReflectance*pow(R.dot(V), this->material.shininess)*light.colour));
+        auto diffuseProduct = this->material.diffuseReflectance.cwiseProduct((L.dot(N))*light.colour);
+        auto specularProduct = this->material.specularReflectance.cwiseProduct(pow(R.dot(V), this->material.shininess)*light.colour);
+        I = static_cast<Eigen::Vector4f>(I + (diffuseProduct + specularProduct));
     }
-    float inspect[] {I[0], I[1], I[2], I[3]};
-    return Eigen::Vector4f(1, 0, 1, 1);
+    return I;
 };
