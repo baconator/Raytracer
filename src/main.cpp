@@ -3,6 +3,7 @@
 #include "Scene.h"
 #include "Eigen/Dense"
 #include "Sphere.h"
+#include "MaterialParameters.h"
 
 using namespace std;
 
@@ -16,8 +17,11 @@ int main() {
     auto camera = rock.GetCamera();
     SceneParameters parameters;
 
+    Eigen::Vector4f pink(255, 10, 255, 255);
+    MaterialParameters matParams{pink, pink, pink, 2.0f};
+
     std::vector<Intersectable*> geometry;
-    Sphere sph(Eigen::Vector4f(0.0f, 1.0f, 12.0f, 0.0f), 10.0f);
+    Sphere sph(Eigen::Vector4f(0.0f, 1.0f, 12.0f, 0.0f), 10.0f, matParams);
     geometry.push_back(&sph);
 
     std::vector<Light> lights;
@@ -26,8 +30,8 @@ int main() {
 
     Scene scene(geometry, lights, camera, parameters);
     auto result = scene.Render();
-    std::chrono::duration<float> seconds = std::get<1>(result);
-    std::cout << "Frame render time (ms): " << seconds.count() << std::endl;
+    std::chrono::duration<float> milliseconds = std::get<1>(result);
+    std::cout << "Frame render time (ms): " << milliseconds.count() << std::endl;
     auto whiteBuffer = std::get<0>(result);
     rock.Draw(whiteBuffer);
     rock.RunForever();

@@ -7,16 +7,18 @@
 
 
 #include "Intersectable.h"
+#include "MaterialParameters.h"
 #include "Eigen/Dense"
 
 class Sphere: public Intersectable {
 private:
     Eigen::Vector4f centre;
     float radius;
+    MaterialParameters material;
 public:
-    Sphere(Eigen::Vector4f centre, float radius);
+    Sphere(Eigen::Vector4f centre, float radius, MaterialParameters material);
     float Intersect(Ray& compare);
-    Eigen::Vector4f Colour(Ray& compare, std::vector<Light>& lights);
+    Eigen::Vector4f Colour(Ray& compare, std::vector<Light>& lights, const Eigen::Vector4f& ambient);
 };
 
 

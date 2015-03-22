@@ -4,10 +4,10 @@
 
 #include "Sphere.h"
 #include <cmath>
-Sphere::Sphere(Eigen::Vector4f centre, float radius)
+Sphere::Sphere(Eigen::Vector4f centre, float radius, MaterialParameters material)
         : centre(centre),
-          radius(radius){
-
+          radius(radius),
+          material(material){
 }
 
 float Sphere::Intersect(Ray& compare) {
@@ -24,17 +24,20 @@ float Sphere::Intersect(Ray& compare) {
     return fmin(d1, d2);
 }
 
-Eigen::Vector4f Sphere::Colour(Ray& compare, std::vector<Light>& lights){
+Eigen::Vector4f Sphere::Colour(Ray& compare, std::vector<Light>& lights, const Eigen::Vector4f& ambient){
     // https://en.wikipedia.org/wiki/Phong_reflection_model
     auto V = (compare.through-compare.start).normalized();
     auto d = this->Intersect(compare);
     auto x = compare.Point(d);
     auto N = (this->centre-x).normalized();
+
+    Eigen::Vector4f I = this->material.ambientReflectance.cwiseProduct(ambient);
     for(auto& light : lights){
         auto L = (light.position-x).normalized();
         // http://en.wikipedia.org/wiki/Specular_reflection#Direction_of_reflection
         auto R = 2*(N.dot(L))*N-L;
-        
+        //I = static_cast<Eigen::Vector4f>(I + (this->material.diffuseReflectance*(L.dot(N))*light.colour + this->material.specularReflectance*pow(R.dot(V), this->material.shininess)*light.colour));
     }
-    return Eigen::Vector4f(128, 0, 128, 255);
-}
+    float inspect[] {I[0], I[1], I[2], I[3]};
+    return Eigen::Vector4f(1, 0, 1, 1);
+};

@@ -14,7 +14,7 @@
 class Intersectable {
 public:
     virtual float Intersect(Ray& compare) = 0;
-    virtual Eigen::Vector4f Colour(Ray& compare, std::vector<Light>& lights) = 0;
+    virtual Eigen::Vector4f Colour(Ray& compare, std::vector<Light>& lights, const Eigen::Vector4f& ambient) = 0;
 };
 
 

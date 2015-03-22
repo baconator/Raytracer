@@ -38,7 +38,7 @@ std::tuple<std::vector<uint8_t>, std::chrono::milliseconds> Scene::Render(){
         state.PrimaryIntersections = this->Trace(state.Primary);
     }
     auto finish = std::chrono::high_resolution_clock::now();
-    return std::make_tuple(state.Frame, std::chrono::duration_cast<std::chrono::milliseconds>(finish- start));
+    return std::make_tuple(state.Frame, std::chrono::duration_cast<std::chrono::milliseconds>(finish-start));
 }
 
 void Scene::Render(Scene::State& state){
@@ -50,20 +50,21 @@ void Scene::Render(Scene::State& state){
     // Now that you have primary intersections, draw their colours!
     if(state.PrimaryIntersections.size() > 0){
         // Normalize out colour values.
-        std::tuple<float, float, float, float> maxes(0, 0, 0, 0); // Yes, it normalizes transparency too.
+        Eigen::Vector4f maxes(0, 0, 0, 0); // Yes, it normalizes transparency too.
         // TODO: do dynamic compression.
+        // TODO: pass in ambient lighting properly.
+        auto ambient = Eigen::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
         std::vector<Eigen::Vector4f> colours;
         for(auto i = 0; i < state.PrimaryIntersections.size(); i += 1){
+            // If there are no intersections, return a transparent black. Otherwise, get the intersection colour.
             auto colour = (state.PrimaryIntersections[i] == nullptr)
                     ? Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f)
-                    : state.PrimaryIntersections[i]->Colour(state.Primary[i], this->lights);
+                    : state.PrimaryIntersections[i]->Colour(state.Primary[i], this->lights, ambient);
             colours.push_back(colour);
-            std::get<0>(maxes) = fmax(colour[0], std::get<0>(maxes));
-            std::get<1>(maxes) = fmax(colour[1], std::get<1>(maxes));
-            std::get<2>(maxes) = fmax(colour[2], std::get<2>(maxes));
-            std::get<3>(maxes) = fmax(colour[3], std::get<3>(maxes));
+            maxes = colour.cwiseMax(maxes);
         }
-        auto upper = fmax(std::get<0>(maxes), fmax(std::get<1>(maxes), fmax(std::get<2>(maxes), std::get<3>(maxes))));
+        maxes[3] = 0.0f; // We're ignoring alpha for the max terms.
+        auto upper = maxes.maxCoeff();
 
         state.Frame = std::vector<uint8_t>(state.PrimaryIntersections.size()*4, 0);
         for(auto i = 0; i < colours.size(); i += 1){
@@ -72,7 +73,7 @@ void Scene::Render(Scene::State& state){
             state.Frame[4*i] = static_cast<uint8_t>(round(colour[0]/ upper *255.0f));
             state.Frame[4*i+1] = static_cast<uint8_t>(round(colour[1]/ upper *255.0f));
             state.Frame[4*i+2] = static_cast<uint8_t>(round(colour[2]/ upper *255.0f));
-            state.Frame[4*i+3] = static_cast<uint8_t>(round(colour[3]/ upper *255.0f));
+            state.Frame[4*i+3] = static_cast<uint8_t>(round(255.0f));
         }
         state.Complete = true;
     }
