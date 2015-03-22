@@ -67,10 +67,10 @@ void Scene::Render(Scene::State& state){
         for(auto i = 0; i < colours.size(); i += 1){
             if(state.PrimaryIntersections[i] == nullptr) continue;
             auto colour = colours[i];
-            state.Frame[4*i] = static_cast<uint8_t>(round(colour[0]/std::get<0>(maxes)));
-            state.Frame[4*i+1] = static_cast<uint8_t>(round(colour[1]/std::get<1>(maxes)));
-            state.Frame[4*i+2] = static_cast<uint8_t>(round(colour[2]/std::get<2>(maxes)));
-            state.Frame[4*i+3] = static_cast<uint8_t>(round(colour[3]/std::get<3>(maxes)));
+            state.Frame[4*i] = static_cast<uint8_t>(round(colour[0]/std::get<0>(maxes)*255.0f));
+            state.Frame[4*i+1] = static_cast<uint8_t>(round(colour[1]/std::get<1>(maxes)*255.0f));
+            state.Frame[4*i+2] = static_cast<uint8_t>(round(colour[2]/std::get<2>(maxes)*255.0f));
+            state.Frame[4*i+3] = static_cast<uint8_t>(round(colour[3]/std::get<3>(maxes)*255.0f));
         }
         state.Complete = true;
     }
