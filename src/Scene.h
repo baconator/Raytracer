@@ -28,6 +28,8 @@ public:
         std::vector<Ray> Refracted; // 
 
         std::vector<Ray> Shadow;
+        std::vector<Intersectable*> ShadowIgnores; // Make sure that shadow rays don't intersect with their originators!
+        std::vector<Intersectable*> ShadowIntersections;
     };
 private:
     Camera camera;

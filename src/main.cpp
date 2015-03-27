@@ -29,7 +29,7 @@ int main() {
     geometry.push_back(&sph2);
 
     std::vector<Light> lights;
-    Light lht(Eigen::Vector4f(-15.0f, 1.0f, 12.0f, 0.0f), Eigen::Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+    Light lht(Eigen::Vector4f(-30.0f, 1.0f, 12.0f, 0.0f), Eigen::Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
     lights.push_back(lht);
 
     Scene scene(geometry, lights, camera, parameters);

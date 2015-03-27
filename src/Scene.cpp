@@ -3,6 +3,7 @@
 //
 
 #include "Scene.h"
+#include <algorithm>
 Scene::Scene(std::vector<Intersectable*> geometry, std::vector<Light> lights, Camera camera, SceneParameters parameters)
         : camera(camera),
           geometry(geometry),
