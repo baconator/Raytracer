@@ -3,7 +3,6 @@
 //
 
 #include "Scene.h"
-#include <algorithm>
 Scene::Scene(std::vector<Intersectable*> geometry, std::vector<Light> lights, Camera camera, SceneParameters parameters)
         : camera(camera),
           geometry(geometry),
@@ -11,7 +10,7 @@ Scene::Scene(std::vector<Intersectable*> geometry, std::vector<Light> lights, Ca
           parameters(parameters){
 }
 
-std::vector<Intersectable*> Scene::Trace(std::vector<Ray>& rays){
+std::vector<Intersectable*> Scene::Trace(std::vector<Ray>& rays, const std::vector<Intersectable*>& ignored){
     // Naive ray trace!
     // i.e. compare every ray to every piece of geometry and return the closest intersecting one.
     std::vector<Intersectable*> output(rays.size(), nullptr);
@@ -20,7 +19,8 @@ std::vector<Intersectable*> Scene::Trace(std::vector<Ray>& rays){
         auto best = std::make_tuple<float, Intersectable*>(std::numeric_limits<float>::infinity(), nullptr);
         for(auto g = 0; g < this->geometry.size(); g += 1){
             auto d = this->geometry[g]->Intersect(rays[r]);
-            if(d != 0.0f && d < std::get<0>(best)){
+            // If there is an intersection (i.e. not 0.0f), it's closer than the best and isn't being ignored, use it.
+            if(d != 0.0f && d < std::get<0>(best) && this->geometry[g] != ignored[g]){
                 std::get<0>(best) = d;
                 std::get<1>(best) = this->geometry[g];
             }
@@ -34,9 +34,16 @@ std::tuple<std::vector<uint8_t>, std::chrono::milliseconds> Scene::Render(){
     auto start = std::chrono::high_resolution_clock::now();
     State state = {0}; // Scary. Very scary.
     state.Complete = false;
+    state.Start = true;
     while(!state.Complete) {
         this->Render(state);
-        state.PrimaryIntersections = this->Trace(state.Primary);
+        // Note: this should be in the opposite order as the render function.
+        if(state.PrimaryIntersections.size() == 0){
+            auto nothing = std::vector<Intersection*>(state.Primary.size(), nullptr);
+            state.PrimaryIntersections = this->Trace(state.Primary, nothing);
+        }else if(state.ShadowIntersections.size() == 0){
+            state.ShadowIntersections = this->Trace(state.Shadow, state.Primary);
+        }
     }
     auto finish = std::chrono::high_resolution_clock::now();
     return std::make_tuple(state.Frame, std::chrono::duration_cast<std::chrono::milliseconds>(finish-start));
@@ -44,12 +51,12 @@ std::tuple<std::vector<uint8_t>, std::chrono::milliseconds> Scene::Render(){
 
 void Scene::Render(Scene::State& state){
     // If there aren't any primary rays, create them.
-    if(state.Primary.size() == 0){
+    if(state.Start == true){
         state.Primary = this->camera.Cast();
     }
 
-    // Now that you have primary intersections, draw their colours!
-    if(state.PrimaryIntersections.size() > 0){
+    // Pipeline works backwards ... don't ask.
+    if(state.ShadowIntersections.size() > 0){ // Check if there's a shadow then pass it along for colouring!
         // Normalize out colour values.
         Eigen::Vector4f maxes(0, 0, 0, 0); // Yes, it normalizes transparency too.
         // TODO: do dynamic compression.
@@ -75,6 +82,8 @@ void Scene::Render(Scene::State& state){
             state.Frame[4*i+2] = static_cast<uint8_t>(round(colour[2]/ upper *255.0f));
             state.Frame[4*i+3] = static_cast<uint8_t>(round(255.0f));
         }
-        state.Complete = true;
+    }else if(state.PrimaryIntersections.size() > 0){ // Now that you have primary intersections, trace their shadows!
+        // For every intersecting ray, trace another ray out to each light and see if it intersects with anything (other than the primary intersector)
+        
     }
 }

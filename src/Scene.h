@@ -17,6 +17,7 @@
 class Scene {
 public:
     struct State{
+        bool Starting;
         bool Complete;
         std::vector<uint8_t> Frame;
         std::vector<Ray> Primary; // If there aren't any primary rays, generate them.
@@ -28,8 +29,7 @@ public:
         std::vector<Ray> Refracted; // 
 
         std::vector<Ray> Shadow;
-        std::vector<Intersectable*> ShadowIgnores; // Make sure that shadow rays don't intersect with their originators!
-        std::vector<Intersectable*> ShadowIntersections;
+        std::vector<bool> ShadowIntersections;
     };
 private:
     Camera camera;
@@ -37,7 +37,7 @@ private:
     std::vector<Light> lights;
     SceneParameters parameters;
     void Render(State& state);
-    std::vector<Intersectable*> Trace(std::vector<Ray>& rays);
+    std::vector<Intersectable*> Trace(std::vector<Ray>& rays, const std::vector<Intersectable*>& ignored);
 
 public:
     Scene(std::vector<Intersectable*> geometry, std::vector<Light> lights, Camera camera, SceneParameters parameters);
