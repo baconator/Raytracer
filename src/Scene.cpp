@@ -54,13 +54,13 @@ void Scene::Render(Scene::State& state){
         // TODO: do dynamic compression.
         // TODO: pass in ambient lighting properly.
         auto ambient = Eigen::Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
-        std::vector<Eigen::Vector4f> colours;
+        std::vector<Eigen::Vector4f> colours(state.PrimaryIntersections.size());
         for(auto i = 0; i < state.PrimaryIntersections.size(); i += 1){
             // If there are no intersections, return a transparent black. Otherwise, get the intersection colour.
             auto colour = (state.PrimaryIntersections[i] == nullptr)
                     ? Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f)
                     : state.PrimaryIntersections[i]->Colour(state.Primary[i], this->lights, ambient);
-            colours.push_back(colour);
+            colours[i] = colour;
             maxes = colour.cwiseMax(maxes);
         }
         maxes[3] = 0.0f; // We're ignoring alpha for the max terms.
@@ -68,7 +68,6 @@ void Scene::Render(Scene::State& state){
 
         state.Frame = std::vector<uint8_t>(state.PrimaryIntersections.size()*4, 0);
         for(auto i = 0; i < colours.size(); i += 1){
-            if(state.PrimaryIntersections[i] == nullptr) continue;
             auto colour = colours[i];
             state.Frame[4*i] = static_cast<uint8_t>(round(colour[0]/ upper *255.0f));
             state.Frame[4*i+1] = static_cast<uint8_t>(round(colour[1]/ upper *255.0f));
